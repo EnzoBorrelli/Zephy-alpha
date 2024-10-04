@@ -7,13 +7,18 @@
     "clean": "del /s /q build",
     "build": "tsc --build",
     "start": "npm run clean && npm run build && node build/index.js",
-    "startNoClean": "npm run build && node build/index.js"
+    "startNoClean": "npm run build && node build/index.js",
+    "dev": "npm run clean && npm run build && node build/index.js --development",
+    "devNoClean": "npm run build && node build/index.js --development"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/ms": "^0.7.34",
     "discord.js": "^14.16.3",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "mongoose": "^8.7.0",
+    "ms": "^2.1.3"
   }
 }
