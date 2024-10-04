@@ -16,10 +16,10 @@ const discord_js_1 = require("discord.js");
 const SubCommand_1 = __importDefault(require("../../base/classes/SubCommand"));
 const GuildConfig_1 = __importDefault(require("../../base/schemas/GuildConfig"));
 const ms_1 = __importDefault(require("ms"));
-class BanAdd extends SubCommand_1.default {
+class ModBan extends SubCommand_1.default {
     constructor(client) {
         super(client, {
-            name: "ban.add",
+            name: "mod.ban",
         });
     }
     Execute(interaction) {
@@ -120,4 +120,4 @@ class BanAdd extends SubCommand_1.default {
         });
     }
 }
-exports.default = BanAdd;
+exports.default = ModBan;

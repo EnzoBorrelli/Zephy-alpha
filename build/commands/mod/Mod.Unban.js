@@ -15,10 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const SubCommand_1 = __importDefault(require("../../base/classes/SubCommand"));
 const GuildConfig_1 = __importDefault(require("../../base/schemas/GuildConfig"));
-class BanRemove extends SubCommand_1.default {
+class ModUnban extends SubCommand_1.default {
     constructor(client) {
         super(client, {
-            name: "ban.remove",
+            name: "mod.unban",
         });
     }
     Execute(interaction) {
@@ -86,4 +86,4 @@ class BanRemove extends SubCommand_1.default {
         });
     }
 }
-exports.default = BanRemove;
+exports.default = ModUnban;

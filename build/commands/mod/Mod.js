@@ -6,18 +6,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const Command_1 = __importDefault(require("../../base/classes/Command"));
 const Category_1 = __importDefault(require("../../base/enums/Category"));
-class Ban extends Command_1.default {
+class Mod extends Command_1.default {
     constructor(client) {
         super(client, {
-            name: "ban",
-            description: "control ban users of the server",
+            name: "mod",
+            description: "moderate the users of the server",
             category: Category_1.default.Mod,
             default_member_permissions: discord_js_1.PermissionsBitField.Flags.BanMembers,
             dm_permission: false,
             cooldown: 3,
             options: [
                 {
-                    name: "add",
+                    name: "ban",
                     description: "Ban a user from the server",
                     type: discord_js_1.ApplicationCommandOptionType.Subcommand,
                     options: [
@@ -53,8 +53,8 @@ class Ban extends Command_1.default {
                     ],
                 },
                 {
-                    name: "remove",
-                    description: "remove a ban from an user of the server",
+                    name: "unban",
+                    description: "remove a ban from an user",
                     type: discord_js_1.ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
@@ -82,4 +82,4 @@ class Ban extends Command_1.default {
         });
     }
 }
-exports.default = Ban;
+exports.default = Mod;
