@@ -14,6 +14,7 @@ export default class Test extends Command {
       dm_permission: false,
       cooldown: 3,
       options: [],
+      dev:false
     });
   }
   Execute(interaction: ChatInputCommandInteraction) {
