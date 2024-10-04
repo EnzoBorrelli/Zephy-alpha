@@ -26,12 +26,20 @@ class Ready extends Event_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             console.log(`${(_a = this.client.user) === null || _a === void 0 ? void 0 : _a.tag} is now ready`);
-            const commands = this.GetJson(this.client.commands);
+            const clientId = this.client.developmentMode
+                ? this.client.config.devDiscordClientId
+                : this.client.config.discordClientId;
             const rest = new discord_js_1.REST().setToken(this.client.config.token);
-            const setCommands = yield rest.put(discord_js_1.Routes.applicationGuildCommands(this.client.config.discordClientId, this.client.config.guildId), {
-                body: commands
+            if (!this.client.developmentMode) {
+                const globalCommands = yield rest.put(discord_js_1.Routes.applicationCommands(clientId), {
+                    body: this.GetJson(this.client.commands.filter((command) => !command.dev)),
+                });
+                console.log(`succesfully set ${globalCommands.length} global app (/) commands.`);
+            }
+            const devCommands = yield rest.put(discord_js_1.Routes.applicationGuildCommands(clientId, this.client.config.devGuildId), {
+                body: this.GetJson(this.client.commands.filter((command) => command.dev)),
             });
-            console.log(`succesfully set ${setCommands.length} commands`);
+            console.log(`succesfully set ${devCommands.length} dev app (/) commands.`);
         });
     }
     GetJson(commands) {

@@ -6,21 +6,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const Command_1 = __importDefault(require("../base/classes/Command"));
 const Category_1 = __importDefault(require("../base/enums/Category"));
-class Test extends Command_1.default {
+class DevOnly extends Command_1.default {
     constructor(client) {
         super(client, {
-            name: "test",
-            description: "test command",
+            name: "devonly",
+            description: "dev only command",
             category: Category_1.default.Utilities,
-            default_member_permissions: discord_js_1.PermissionsBitField.Flags.UseApplicationCommands,
+            default_member_permissions: discord_js_1.PermissionsBitField.Flags.Administrator,
             dm_permission: false,
             cooldown: 3,
             options: [],
-            dev: false
+            dev: true
         });
     }
     Execute(interaction) {
-        interaction.reply({ content: "test comand has been ran", ephemeral: true });
+        interaction.reply({ content: "dev comand has been ran", ephemeral: true });
     }
 }
-exports.default = Test;
+exports.default = DevOnly;

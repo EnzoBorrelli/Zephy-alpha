@@ -10,10 +10,9 @@ class Command {
         this.default_member_permissions = options.default_member_permissions;
         this.dm_permission = options.dm_permission;
         this.cooldown = options.cooldown;
+        this.dev = options.dev;
     }
-    Execute(interaction) {
-    }
-    AutoComplete(interaction) {
-    }
+    Execute(interaction) { }
+    AutoComplete(interaction) { }
 }
 exports.default = Command;
