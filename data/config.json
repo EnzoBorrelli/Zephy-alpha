@@ -1,5 +1,11 @@
 {
-    "token":"MTI5MDc2NzIzNTMzNzY4NzIwNg.GPzEt6.8By4Co9Yr-9qEIWtFXZxEAWAruiggikif1bi-8",
-    "discordClientId":"1290767235337687206",
-    "guildId":"1080245424457273454"
+  "token": "MTI5MDc2NzIzNTMzNzY4NzIwNg.GPzEt6.8By4Co9Yr-9qEIWtFXZxEAWAruiggikif1bi-8",
+  "discordClientId": "1290767235337687206",
+  "mongoUrl": "mongodb+srv://EndyH:a4v5frFd@zephycluster.njv82.mongodb.net/Guilds?retryWrites=true&w=majority&appName=zephyCluster",
+
+  "devToken": "",
+  "devDiscordClientId": "",
+  "devGuildId": "1080245424457273454",
+  "devUserIds": ["819236872462925844"],
+  "devMongoUrl": ""
 }
