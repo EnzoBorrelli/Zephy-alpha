@@ -7,7 +7,9 @@ export default interface ICustomClient {
   config: Iconfig;
   commands: Collection<string, Command>;
   subCommands: Collection<string, SubCommand>;
-  cooldowns: Collection<string, Collection<string,number>>;
+  cooldowns: Collection<string, Collection<string, number>>;
+  developmentMode: boolean;
+
   init(): void;
   LoadHandlers(): void;
 }
