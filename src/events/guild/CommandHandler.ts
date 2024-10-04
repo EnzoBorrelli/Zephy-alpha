@@ -16,19 +16,31 @@ export default class CommandHandler extends Event {
       once: false,
     });
   }
-  Execute(interaction: ChatInputCommandInteraction) {
+  async Execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.isChatInputCommand()) return;
 
     const command: Command = this.client.commands.get(interaction.commandName)!;
 
     if (!command)
       return (
-        //@ts-ignore
-        interaction.reply({
+        (await interaction.reply({
           content: "this comand does not exist",
           ephemeral: true,
-        }) && this.client.commands.delete(interaction.commandName)
+        })) && this.client.commands.delete(interaction.commandName)
       );
+
+    if (
+      command.dev &&
+      !this.client.config.devUserIds.includes(interaction.user.id)
+    )
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("❌ this comman is only for developers"),
+        ],
+        ephemeral: true,
+      });
 
     const { cooldowns } = this.client;
     if (!cooldowns.has(command.name))
