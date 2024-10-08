@@ -1,6 +1,6 @@
 {
   "name": "zephy-alpha",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "the first and more simpler version of zephyra",
   "main": "index.js",
   "scripts": {
