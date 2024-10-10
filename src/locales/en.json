@@ -1,5 +1,42 @@
 {
   "language-set": "I will speak English from now on 🇬🇧",
   "greeting": "Hello!",
-  "farewell": "Goodbye!"
+  "farewell": "Goodbye!",
+  "general": {
+    "reason_alert": "❌ the reason can't be longer than 512 characters",
+    "error": "❌ There was an error",
+    "by": "by",
+    "reason": "Reason:",
+    "duration":"Duration:",
+    "user": "User:",
+    "messages": "Messages:",
+    "action": "Actioned By:",
+    "from": "from",
+    "in": "in",
+    "all": "all",
+    "channel": "Channel"
+  },
+  "mod": {
+    "user_not_found": "❌ I cannot find this user",
+    "user_not_moderatable": "❌ This user can't be moderated",
+    "autoban_alert": "❌ To yourself? i can't let you do that",
+    "role_alert": "❌ This user have higher roles, can't touch this"
+  },
+  "ban": {
+    "dm_banned": "You were banned from:"
+  },
+  "kick": {
+    "dm_kicked": "You were kicked from:"
+  },
+  "mute": {
+    "dm_muted": "You were muted from:",
+    "already_muted":"is already muted until",
+    "expires":"Expires:"
+  },
+  "clear": {
+    "amount_alert": "❌ You can only delete between 1 and 100 messages at a time",
+    "error": "❌ An error ocurred while trying to delete the messages",
+    "deleted": "Deleted",
+    "messages": "messages"
+  }
 }
