@@ -14,6 +14,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import GuildConfig from "../../base/schemas/GuildConfig";
 import Command from "../../base/classes/Command";
 import Category from "../../base/enums/Category";
+import i18next from "i18next";
 
 export default class Clear extends Command {
   constructor(client: CustomClient) {
@@ -64,13 +65,13 @@ export default class Clear extends Command {
     const errorEmbed = new EmbedBuilder().setColor("Red");
     const Embed = new EmbedBuilder().setColor("Orange");
 
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
+
     if (amount < 1 || amount > 100) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ You can only delete between 1 and 100 messages at a time"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("clear.amount_alert"))],
         ephemeral: true,
       });
     }
@@ -95,20 +96,18 @@ export default class Clear extends Command {
       ).size;
     } catch {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ An error ocurred while trying to delete the messages"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("clear.error"))],
         ephemeral: true,
       });
     }
     interaction.reply({
       embeds: [
         Embed.setDescription(
-          `🧹 **Deleted** \`${deleted}\` messages ${
-            target ? `from ${target} ` : ""
-          } in ${channel}`
+          `🧹 **${i18next.t("clear.deleted")}** \`${deleted}\` ${i18next.t(
+            "clear.messages"
+          )} ${
+            target ? `${i18next.t("general.from")} ${target} ` : ""
+          } ${i18next.t("general.in")} ${channel}`
         ),
       ],
       ephemeral: true,
@@ -119,16 +118,21 @@ export default class Clear extends Command {
         .send({
           embeds: [
             Embed.setAuthor({ name: `🧹Clear | ${channel.name}` })
-              .setDescription(`Deleted \`${deleted}\` messages`)
+              .setDescription(
+                `${i18next.t("clear.deleted")} \`${deleted}\` ${i18next.t(
+                  "clear.messages"
+                )}`
+              )
               .setTimestamp()
               .setFooter({
-                text: `Messages: ${target ? target.user.tag : "All"} messages`,
+                text: `${i18next.t("general.messages")} ${
+                  target ? target.user.tag : `${i18next.t("general.all")}`
+                } ${i18next.t("clear.messages")}`,
               }),
           ],
         })
         .then(async (msg) => await msg.react("🧹"));
     }
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
 
     if (
       guild &&
@@ -144,13 +148,17 @@ export default class Clear extends Command {
           Embed.setAuthor({ name: `⌛ Clear` })
             .setThumbnail(interaction.user.displayAvatarURL({ size: 64 }))
             .setDescription(
-              `**Channel:** ${channel.name} \n **Messages:** ${
-                target ? target.user.tag : "All"
-              } messages`
+              `**${i18next.t("general.channel")}** ${
+                channel.name
+              } \n **${i18next.t("general.messages")}** ${
+                target ? target.user.tag : `${i18next.t("general.all")}`
+              } ${i18next.t("clear.messages")}`
             )
             .setTimestamp()
             .setFooter({
-              text: `Actioned by ${interaction.user.tag} | ${interaction.user.id}`,
+              text: `${i18next.t("general.action")} ${interaction.user.tag} | ${
+                interaction.user.id
+              }`,
               iconURL: interaction.user.displayAvatarURL({ size: 64 }),
             }),
         ],

@@ -12,6 +12,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import ms from "ms";
 import GuildConfig from "../../base/schemas/GuildConfig";
+import i18next from "i18next";
 
 export default class Ban extends Command {
   constructor(client: CustomClient) {
@@ -36,17 +37,6 @@ export default class Ban extends Command {
           required: false,
         },
         {
-          name: "days",
-          description: "delete user recent messages",
-          type: ApplicationCommandOptionType.String,
-          required: false,
-          choices: [
-            { name: "none", value: "0" },
-            { name: "previous day", value: "1d" },
-            { name: "previous week", value: "7d" },
-          ],
-        },
-        {
           name: "silent",
           description: "Dont send a message to the channel",
           type: ApplicationCommandOptionType.Boolean,
@@ -61,20 +51,23 @@ export default class Ban extends Command {
     const target = interaction.options.getMember("target") as GuildMember;
     const reason =
       interaction.options.getString("reason") || "no reason provided";
-    const days = interaction.options.getString("days") || "0";
     const silent = interaction.options.getBoolean("silent") || false;
 
     const errorEmbed = new EmbedBuilder().setColor("Red");
 
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
+
     if (!target) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ User is not in the server")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.user_not_found"))],
         ephemeral: true,
       });
     }
     if (target.id === interaction.user.id) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ You can't ban yourself")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.autoban_alert"))],
         ephemeral: true,
       });
     }
@@ -83,17 +76,13 @@ export default class Ban extends Command {
       (interaction.member?.roles as GuildMemberRoleManager).highest.position
     ) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ you can't ban an user with higher roles"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.role_alert"))],
         ephemeral: true,
       });
     }
     if (!target.bannable) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ you can't ban this user")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.user_not_moderatable"))],
         ephemeral: true,
       });
     }
@@ -101,7 +90,7 @@ export default class Ban extends Command {
       return interaction.reply({
         embeds: [
           errorEmbed.setDescription(
-            "❌ the reason can't be longer than 512 caracters"
+            i18next.t("general.reason_alert")
           ),
         ],
         ephemeral: true,
@@ -112,7 +101,11 @@ export default class Ban extends Command {
         embeds: [
           errorEmbed
             .setDescription(
-              `🔨 you were **banned** from \`${interaction.guild?.name}\` by ${interaction.member}, \n reason:[${reason}]`
+              `🔨 ${i18next.t("ban.dm_banned")} \`${
+                interaction.guild?.name
+              }\` ${i18next.t("general.by")} ${
+                interaction.member
+              }, \n ${i18next.t("general.reason")}[${reason}]`
             )
             .setImage(interaction.guild?.iconURL({})!),
         ],
@@ -120,10 +113,10 @@ export default class Ban extends Command {
       .catch();
 
     try {
-      await target?.ban({ deleteMessageSeconds: ms(days), reason: reason });
+      await target?.ban({ deleteMessageSeconds: 0, reason: reason });
     } catch {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ there was an error")],
+        embeds: [errorEmbed.setDescription(i18next.t("general.error"))],
         ephemeral: true,
       });
     }
@@ -143,17 +136,12 @@ export default class Ban extends Command {
               .setAuthor({ name: `🔨 Ban | ${target.user.tag}` })
               .setThumbnail(target.user.displayAvatarURL({ size: 64 }))
               .setDescription(
-                `**Reason:** \`${reason}\` \n ${
-                  days
-                    ? "0"
-                    : `this user messages in the previous \`${days}\` have been deleted`
-                }`
+                `**${i18next.t("general.reason")}** \`${reason}\` `
               ),
           ],
         })
         .then(async (msg) => await msg.react("🔨"));
     }
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
 
     if (
       guild &&
@@ -170,17 +158,13 @@ export default class Ban extends Command {
             .setAuthor({ name: `🔨 Ban` })
             .setThumbnail(target.user.displayAvatarURL({ size: 64 }))
             .setDescription(
-              `**User:** ${target} - \`${
+              `**${i18next.t("general.user")}** ${target} - \`${
                 target.id
-              }\` \n **Reason:** \`${reason}\` \n ${
-                days
-                  ? "0"
-                  : `this user messages in the previous \`${days}\` have been deleted`
-              }`
+              }\` \n **${i18next.t("general.reason")}** \`${reason}\` `
             )
             .setTimestamp()
             .setFooter({
-              text: `Actioned by ${interaction.user.tag} | ${interaction.user.id}`,
+              text: `${i18next.t("general.action")} ${interaction.user.tag} | ${interaction.user.id}`,
               iconURL: interaction.user.displayAvatarURL({ size: 64 }),
             }),
         ],

@@ -12,6 +12,7 @@ import GuildConfig from "../../base/schemas/GuildConfig";
 import Command from "../../base/classes/Command";
 import Category from "../../base/enums/Category";
 import ms from "ms";
+import i18next from "i18next";
 
 export default class Mute extends Command {
   constructor(client: CustomClient) {
@@ -77,15 +78,19 @@ export default class Mute extends Command {
     const errorEmbed = new EmbedBuilder().setColor("Red");
     const Embed = new EmbedBuilder().setColor("Blue");
 
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
+
     if (!target) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ User is not in the server")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.user_not_found"))],
         ephemeral: true,
       });
     }
     if (target.id === interaction.user.id) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ You can't mute yourself")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.autoban_alert"))],
         ephemeral: true,
       });
     }
@@ -94,11 +99,7 @@ export default class Mute extends Command {
       (interaction.member?.roles as GuildMemberRoleManager).highest.position
     ) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ you can't mute an user with higher roles"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.role_alert"))],
         ephemeral: true,
       });
     }
@@ -109,7 +110,9 @@ export default class Mute extends Command {
       return interaction.reply({
         embeds: [
           errorEmbed.setDescription(
-            `❌ ${target} is already muted until \`${target.communicationDisabledUntil.toLocaleString()}\``
+            `❌ ${target} ${i18next.t(
+              "mute.already_muted"
+            )} \`${target.communicationDisabledUntil.toLocaleString()}\``
           ),
         ],
         ephemeral: true,
@@ -118,11 +121,7 @@ export default class Mute extends Command {
 
     if (reason.length > 512) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ the reason can't be longer than 512 caracters"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("general.reason"))],
         ephemeral: true,
       });
     }
@@ -131,7 +130,13 @@ export default class Mute extends Command {
       await target.send({
         embeds: [
           Embed.setDescription(
-            `⌛ You were muted from \`${interaction.guild?.name}\` by ${interaction.member} \n **Reason:** \`${reason}\` \n **Duration:** \`${duration}\``
+            `⌛ ${i18next.t("mute.dm_muted")} \`${
+              interaction.guild?.name
+            }\` ${i18next.t("general.by")} ${
+              interaction.member
+            }, \n ${i18next.t("general.reason")}[${reason}] \n **${i18next.t(
+              "general.duration"
+            )}** \`${duration}\``
           ).setThumbnail(target.displayAvatarURL({ size: 64 })),
         ],
       });
@@ -140,9 +145,9 @@ export default class Mute extends Command {
     try {
       await target.timeout(msDuration, reason);
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("An error ocurred, try again")],
+        embeds: [errorEmbed.setDescription(i18next.t("general.error"))],
         ephemeral: true,
       });
     }
@@ -157,7 +162,9 @@ export default class Mute extends Command {
         ?.send({
           embeds: [
             Embed.setAuthor({ name: `⌛ Mute | ${target}` }).setDescription(
-              `**Reason:** \`${reason}\` \n **Expires:** <t:${(
+              `** ${i18next.t(
+                "general.reason"
+              )}** \`${reason}\` \n ** ${i18next.t("mute.expires")}** <t:${(
                 (Date.now() + msDuration) /
                 1000
               ).toFixed(0)}:F>`
@@ -166,7 +173,6 @@ export default class Mute extends Command {
         })
         .then(async (msg) => await msg.react("⌛"));
     }
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
 
     if (
       guild &&
@@ -181,14 +187,18 @@ export default class Mute extends Command {
         embeds: [
           Embed.setAuthor({ name: `⌛ Mute` })
             .setDescription(
-              `**User:** ${target} \n **Reason:** \`${reason}\` \n **Expires:** <t:${(
+              `** ${i18next.t("general.user")}** ${target} \n ** ${i18next.t(
+                "general.reason"
+              )}** \`${reason}\` \n ** ${i18next.t("mute.expires")}** <t:${(
                 (Date.now() + msDuration) /
                 1000
               ).toFixed(0)}:F> `
             )
             .setTimestamp()
             .setFooter({
-              text: `Actioned by ${interaction.user.tag} | ${interaction.user.id}`,
+              text: ` ${i18next.t("general.action")} ${
+                interaction.user.tag
+              } | ${interaction.user.id}`,
               iconURL: interaction.user.displayAvatarURL({ size: 64 }),
             }),
         ],
