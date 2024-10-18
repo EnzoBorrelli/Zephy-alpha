@@ -10,6 +10,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import Command from "../../base/classes/Command";
 import Category from "../../base/enums/Category";
 import GuildConfig from "../../base/schemas/GuildConfig";
+import i18next from "i18next";
 
 export default class Slowmode extends Command {
   constructor(client: CustomClient) {
@@ -77,24 +78,20 @@ export default class Slowmode extends Command {
     const errorEmbed = new EmbedBuilder().setColor("Red");
     const Embed = new EmbedBuilder().setColor("Green");
 
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
+
     if (timeSpan < 0 || timeSpan > 21600) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ You can only set an slowmode between 0 seconds and 6 hours"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("slowmode.timespan"))],
         ephemeral: true,
       });
     }
 
     if (reason.length > 512) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ the reason can't be longer than 512 caracters"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("general.reason_alert"))],
         ephemeral: true,
       });
     }
@@ -103,16 +100,16 @@ export default class Slowmode extends Command {
       channel.setRateLimitPerUser(timeSpan, reason);
     } catch {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription("❌ An error ocurred, please try again"),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("general.error"))],
         ephemeral: true,
       });
     }
     interaction.reply({
       embeds: [
         Embed.setDescription(
-          `⏲ slowmode set to \`${timeSpan}\` seconds in ${channel}`
+          `${i18next.t("slowmode.set")} \`${timeSpan}\` ${i18next.t(
+            "slowmode.seconds"
+          )} \n **${i18next.t("general.channel")}** ${channel}`
         ),
       ],
       ephemeral: true,
@@ -124,17 +121,18 @@ export default class Slowmode extends Command {
           embeds: [
             Embed.setAuthor({ name: `⏲Slowmode | ${channel.name}` })
               .setDescription(
-                `⏲ slowmode set to \`${timeSpan}\` seconds  \n  **Reason:** \`${reason}\``
+                `${i18next.t("slowmode.set")} \`${timeSpan}\` ${i18next.t(
+                  "slowmode.seconds"
+                )}  \n  **${i18next.t("general.reason")}** \`${reason}\``
               )
               .setTimestamp()
               .setFooter({
-                text: `Channel: ${channel.name}`,
+                text: `${i18next.t("general.channel")} ${channel.name}`,
               }),
           ],
         })
         .then(async (msg) => await msg.react("⏲"));
     }
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
 
     if (
       guild &&
@@ -150,11 +148,17 @@ export default class Slowmode extends Command {
           Embed.setAuthor({ name: `⏲Slowmode` })
             .setThumbnail(interaction.user.displayAvatarURL({ size: 64 }))
             .setDescription(
-              `**Channel:** ${channel.name} **Time:** \`${timeSpan}\` seconds \n  **Reason:** \`${reason}\``
+              `**${i18next.t("general.channel")}** ${
+                channel.name
+              } **${i18next.t("general.time")}** \`${timeSpan}\` ${i18next.t(
+                "slowmode.seconds"
+              )} \n  **${i18next.t("general.reason")}** \`${reason}\``
             )
             .setTimestamp()
             .setFooter({
-              text: `Actioned by ${interaction.user.tag} | ${interaction.user.id}`,
+              text: `${i18next.t("general.action")} ${interaction.user.tag} | ${
+                interaction.user.id
+              }`,
               iconURL: interaction.user.displayAvatarURL({ size: 64 }),
             }),
         ],
