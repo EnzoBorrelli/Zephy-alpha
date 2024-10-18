@@ -2,7 +2,7 @@ import { model, Schema } from "mongoose";
 
 interface IGuildConfig {
   guildId: string;
-  preferedLang: String;
+  preferedLang: string;
   logs: {
     moderation: {
       enabled: boolean;
