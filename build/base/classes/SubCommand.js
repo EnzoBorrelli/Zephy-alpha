@@ -7,5 +7,6 @@ class SubCommand {
     }
     Execute(interaction) {
     }
+    Reaction(reaction, user) { }
 }
 exports.default = SubCommand;
