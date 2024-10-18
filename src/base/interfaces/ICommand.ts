@@ -1,6 +1,8 @@
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
+  MessageReaction,
+  User,
 } from "discord.js";
 import CustomClient from "../classes/CustomClient";
 import Category from "../enums/Category";
@@ -18,4 +20,5 @@ export default interface ICommand {
 
   Execute(interaction: ChatInputCommandInteraction): void;
   AutoComplete(interaction: AutocompleteInteraction): void;
+  Reaction(reaction: MessageReaction,user:User): void;
 }
