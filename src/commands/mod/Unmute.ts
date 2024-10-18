@@ -11,6 +11,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import GuildConfig from "../../base/schemas/GuildConfig";
 import Command from "../../base/classes/Command";
 import Category from "../../base/enums/Category";
+import i18next from "i18next";
 
 export default class Unmute extends Command {
   constructor(client: CustomClient) {
@@ -53,15 +54,19 @@ export default class Unmute extends Command {
     const errorEmbed = new EmbedBuilder().setColor("Red");
     const Embed = new EmbedBuilder().setColor("Blue");
 
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
+
     if (!target) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ User is not in the server")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.user_not_found"))],
         ephemeral: true,
       });
     }
     if (target.id === interaction.user.id) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ You can't unmute yourself")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.autoban_alert"))],
         ephemeral: true,
       });
     }
@@ -70,18 +75,16 @@ export default class Unmute extends Command {
       (interaction.member?.roles as GuildMemberRoleManager).highest.position
     ) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ you can't unmute an user with higher roles"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.role_alert"))],
         ephemeral: true,
       });
     }
     if (target.communicationDisabledUntil == null) {
       return interaction.reply({
         embeds: [
-          errorEmbed.setDescription(`❌ ${target} is not muted at the moment`),
+          errorEmbed.setDescription(
+            `❌ ${target} ${i18next.t("mute.not_muted")}`
+          ),
         ],
         ephemeral: true,
       });
@@ -89,11 +92,7 @@ export default class Unmute extends Command {
 
     if (reason.length > 512) {
       return interaction.reply({
-        embeds: [
-          errorEmbed.setDescription(
-            "❌ the reason can't be longer than 512 caracters"
-          ),
-        ],
+        embeds: [errorEmbed.setDescription(i18next.t("general.reason"))],
         ephemeral: true,
       });
     }
@@ -102,7 +101,11 @@ export default class Unmute extends Command {
       await target.send({
         embeds: [
           Embed.setDescription(
-            `⌛ You were unmuted from \`${interaction.guild?.name}\` by ${interaction.member} \n  **Reason:** \`${reason}\``
+            `⌛ ${i18next.t("mute.dm_unmuted")} \`${
+              interaction.guild?.name
+            }\` ${i18next.t("general.by")} ${
+              interaction.member
+            } \n  **${i18next.t("general.reason")}** \`${reason}\``
           ).setThumbnail(target.displayAvatarURL({ size: 64 })),
         ],
       });
@@ -112,7 +115,7 @@ export default class Unmute extends Command {
       await target.timeout(null, reason);
     } catch (error) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("An error ocurred, try again")],
+        embeds: [errorEmbed.setDescription(i18next.t("general.error"))],
         ephemeral: true,
       });
     }
@@ -127,13 +130,12 @@ export default class Unmute extends Command {
         ?.send({
           embeds: [
             Embed.setAuthor({ name: `⌛ UnMute | ${target}` }).setDescription(
-              `**Reason:** \`${reason}\``
+              `**${i18next.t("general.reason")}** \`${reason}\``
             ),
           ],
         })
         .then(async (msg) => await msg.react("⌛"));
     }
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
 
     if (
       guild &&
@@ -147,10 +149,16 @@ export default class Unmute extends Command {
       )?.send({
         embeds: [
           Embed.setAuthor({ name: `⌛ UnMute` })
-            .setDescription(`**User:** ${target} \n **Reason:** \`${reason}\``)
+            .setDescription(
+              `**${i18next.t("general.user")}** ${target} \n **${i18next.t(
+                "general.reason"
+              )}** \`${reason}\``
+            )
             .setTimestamp()
             .setFooter({
-              text: `Actioned by ${interaction.user.tag} | ${interaction.user.id}`,
+              text: `${i18next.t("general.action")} ${interaction.user.tag} | ${
+                interaction.user.id
+              }`,
               iconURL: interaction.user.displayAvatarURL({ size: 64 }),
             }),
         ],

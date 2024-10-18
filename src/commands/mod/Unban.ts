@@ -9,6 +9,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import GuildConfig from "../../base/schemas/GuildConfig";
 import Command from "../../base/classes/Command";
 import Category from "../../base/enums/Category";
+import i18next from "i18next";
 
 export default class Unban extends Command {
   constructor(client: CustomClient) {
@@ -51,11 +52,15 @@ export default class Unban extends Command {
     const errorEmbed = new EmbedBuilder().setColor("Red");
     const Embed = new EmbedBuilder().setColor("Green");
 
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
+
     if (reason.length > 512) {
       return interaction.reply({
         embeds: [
           errorEmbed.setDescription(
-            "❌ the reason can't be longer than 512 caracters"
+            i18next.t("general.reason")
           ),
         ],
         ephemeral: true,
@@ -66,7 +71,7 @@ export default class Unban extends Command {
       await interaction.guild?.bans.fetch(target!);
     } catch {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ this user is not banned")],
+        embeds: [errorEmbed.setDescription(i18next.t("ban.user_not_banned"))],
         ephemeral: true,
       });
     }
@@ -74,13 +79,13 @@ export default class Unban extends Command {
       await interaction.guild?.bans.remove(target!);
     } catch {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ an error ocurred, try again")],
+        embeds: [errorEmbed.setDescription(i18next.t("general.error"))],
         ephemeral: true,
       });
     }
 
     interaction.reply({
-      embeds: [Embed.setDescription(`🔨 Unbanned ${target}`)],
+      embeds: [Embed.setDescription(`🔨 ${i18next.t("ban.user_unbanned")} ${target}`)],
       ephemeral: true,
     });
     if (!silent) {
@@ -89,13 +94,12 @@ export default class Unban extends Command {
         ?.send({
           embeds: [
             Embed.setAuthor({ name: `🔨 UnBan | ${target}` }).setDescription(
-              `**Reason:** \`${reason}\``
+              `**${i18next.t("general.reason")}** \`${reason}\``
             ),
           ],
         })
         .then(async (msg) => await msg.react("🔨"));
     }
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
 
     if (
       guild &&
@@ -109,10 +113,10 @@ export default class Unban extends Command {
       )?.send({
         embeds: [
           Embed.setAuthor({ name: `🔨 UnBan` })
-            .setDescription(`**User:** ${target} \n **Reason:** \`${reason}\` `)
+            .setDescription(`**${i18next.t("general.user")}** ${target} \n **${i18next.t("general.reason")}** \`${reason}\` `)
             .setTimestamp()
             .setFooter({
-              text: `Actioned by ${interaction.user.tag} | ${interaction.user.id}`,
+              text: `${i18next.t("general.action")} ${interaction.user.tag} | ${interaction.user.id}`,
               iconURL: interaction.user.displayAvatarURL({ size: 64 }),
             }),
         ],

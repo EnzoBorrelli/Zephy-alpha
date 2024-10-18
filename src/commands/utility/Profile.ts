@@ -11,6 +11,8 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { profileImage } from "discord-arts";
+import i18next from "i18next";
+import GuildConfig from "../../base/schemas/GuildConfig";
 
 export default class Profile extends Command {
   constructor(client: CustomClient) {
@@ -53,10 +55,13 @@ export default class Profile extends Command {
     const show = interaction.options.getBoolean("show") || false;
 
     const errorEmbed = new EmbedBuilder().setColor("Red");
+    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+
+    i18next.changeLanguage(guild?.preferedLang.toString());
 
     if (!target) {
       return interaction.reply({
-        embeds: [errorEmbed.setDescription("❌ User is not in the server")],
+        embeds: [errorEmbed.setDescription(i18next.t("mod.user_not_found"))],
         ephemeral: true,
       });
     }
@@ -64,7 +69,7 @@ export default class Profile extends Command {
       return interaction.reply({
         embeds: [
           errorEmbed.setDescription(
-            "❌ the tag can't be longer than 16 caracters"
+            i18next.t("profile.tag")
           ),
         ],
         ephemeral: true,
