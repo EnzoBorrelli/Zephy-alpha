@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, MessageReaction, User } from "discord.js";
 import CustomClient from "../classes/CustomClient";
 
 export default interface ISubCommand {
@@ -6,4 +6,5 @@ export default interface ISubCommand {
   name: string;
 
   Execute(interaction: ChatInputCommandInteraction): void;
+  Reaction(reaction: MessageReaction,user:User): void;
 }
