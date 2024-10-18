@@ -19,7 +19,13 @@ const i18next_1 = __importDefault(require("i18next"));
 const i18next_fs_backend_1 = __importDefault(require("i18next-fs-backend"));
 class CustomClient extends discord_js_1.Client {
     constructor() {
-        super({ intents: [discord_js_1.GatewayIntentBits.Guilds] });
+        super({
+            intents: [
+                discord_js_1.GatewayIntentBits.Guilds,
+                discord_js_1.GatewayIntentBits.GuildMessages,
+                discord_js_1.GatewayIntentBits.GuildMessageReactions,
+            ],
+        });
         this.config = require(`${process.cwd()}/data/config.json`); //process.cwd look for the specific path
         this.handler = new Handler_1.default(this);
         this.commands = new discord_js_1.Collection();

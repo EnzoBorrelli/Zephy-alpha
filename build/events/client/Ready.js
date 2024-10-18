@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const Event_1 = __importDefault(require("../../base/classes/Event"));
+const ReactionRole_1 = __importDefault(require("../../base/schemas/ReactionRole"));
 class Ready extends Event_1.default {
     constructor(client) {
         super(client, {
@@ -40,6 +41,7 @@ class Ready extends Event_1.default {
                 body: this.GetJson(this.client.commands.filter((command) => command.dev)),
             });
             console.log(`succesfully set ${devCommands.length} dev app (/) commands.`);
+            yield this.loadReactionRoles();
         });
     }
     GetJson(commands) {
@@ -54,6 +56,38 @@ class Ready extends Event_1.default {
             });
         });
         return data;
+    }
+    loadReactionRoles() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("im being summoned");
+            try {
+                const reactionRoles = yield ReactionRole_1.default.find();
+                for (const reactionRole of reactionRoles) {
+                    const guild = this.client.guilds.cache.get(reactionRole.guildId);
+                    if (!guild) {
+                        console.log("guild not found");
+                        continue;
+                    }
+                    const channel = guild.channels.cache.get(reactionRole.channelId);
+                    if (!channel) {
+                        console.log("channel not found");
+                        continue;
+                    }
+                    try {
+                        const message = yield channel.messages.fetch(reactionRole.messageId);
+                        if (message) {
+                            console.log(`Loaded reaction role for message ${reactionRole.messageId} in guild ${guild.id}`);
+                        }
+                    }
+                    catch (error) {
+                        console.error(`Error loading message ${reactionRole.messageId}:`, error);
+                    }
+                }
+            }
+            catch (error) {
+                console.error("Failed to load reaction roles on startup:", error);
+            }
+        });
     }
 }
 exports.default = Ready;

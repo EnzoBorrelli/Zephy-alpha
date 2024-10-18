@@ -12,6 +12,7 @@ class Command {
         this.cooldown = options.cooldown;
         this.dev = options.dev;
     }
+    Reaction(reaction, user) { }
     Execute(interaction) { }
     AutoComplete(interaction) { }
 }
