@@ -10,11 +10,13 @@
     "duration": "Duración:",
     "user": "Usuario:",
     "messages": "Mensajes:",
+    "message_id": "ID del mensaje:",
     "action": "Gestionado por:",
     "from": "de",
     "in": "en",
     "all": "todos",
-    "channel": "Canal"
+    "channel": "Canal:",
+    "time": "Tiempo:"
   },
   "mod": {
     "user_not_found": "❌ No encuentro a este usuario",
@@ -23,20 +25,41 @@
     "role_alert": "❌ Este usuario tine mas rango que tu, no puedes tocarlo"
   },
   "ban": {
-    "dm_banned": "Fuiste vetado de:"
+    "dm_banned": "Fuiste vetad@ de:",
+    "user_not_banned":"❌ Este usuario no está vetado",
+    "user_unbanned":"Desvetado"
   },
   "kick": {
-    "dm_banned": "Fuiste expulsado de:"
+    "dm_banned": "Fuiste expulsad@ de:"
   },
   "mute": {
-    "dm_muted": "Fuiste silenciado en:",
-    "already_muted": "ya se encuentra silenciado hasta",
-    "expires": "Expira:"
+    "dm_muted": "Fuiste silenciad@ en:",
+    "dm_unmuted": "Fuiste desilenciad@ en:",
+    "already_muted": "ya se encuentra silenciad@ hasta",
+    "expires": "Expira:",
+    "not_muted":"no esta silenciad@ actualmente"
+  },
+  "slowmode": {
+    "timespan": "❌ Solo puedes establecer SlowMode entre 0 segundos y 6 horas",
+    "set":"⏲ slowmode establecido en",
+    "seconds":"segundos"
   },
   "clear": {
     "amount_alert": "❌ Solo puedes eliminar entre 1 y 100 mensajes a la vez",
     "error": "❌ Ha ocurrido un error mientras intentaba borrar los mensajes",
     "deleted": "Borrado",
     "messages": "mensajes"
+  },
+  "profile":{
+    "tag":"la etiqueta no puede contener mas de 16 caracteres"
+  },
+  "reactionrole":{
+    "existing_reaction":"❗ No puedo agregar dos reacciones en este mensaje con emojs identicos",
+    "reaction_added":"✔ Se ha agregado la reacción",
+    "reaction_deleted":"🗑 Se ha eliminado la reacción",
+    "all_reactions_deleted":"🗑 Todas las reacciones fueron elimminadas",
+    "reaction_not_found":"❌ No puedo encontrar el mensaje, o el emoji en este",
+    "message_not_found":"❌ No puedo encontrar este mensaje:",
+    "no_reactions":"❌ No hay reacciones que borrar en este mensaje"
   }
 }

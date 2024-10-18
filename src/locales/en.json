@@ -7,14 +7,16 @@
     "error": "❌ There was an error",
     "by": "by",
     "reason": "Reason:",
-    "duration":"Duration:",
+    "duration": "Duration:",
     "user": "User:",
     "messages": "Messages:",
+    "message_id": "Message ID:",
     "action": "Actioned By:",
     "from": "from",
     "in": "in",
     "all": "all",
-    "channel": "Channel"
+    "channel": "Channel:",
+    "time": "Time:"
   },
   "mod": {
     "user_not_found": "❌ I cannot find this user",
@@ -23,20 +25,41 @@
     "role_alert": "❌ This user have higher roles, can't touch this"
   },
   "ban": {
-    "dm_banned": "You were banned from:"
+    "dm_banned": "You were banned from:",
+    "user_not_banned":"❌ This user is not banned",
+    "user_unbanned":"Unbanned"
   },
   "kick": {
     "dm_kicked": "You were kicked from:"
   },
   "mute": {
     "dm_muted": "You were muted from:",
-    "already_muted":"is already muted until",
-    "expires":"Expires:"
+    "dm_unmuted": "You were Unmuted from:",
+    "already_muted": "is already muted until",
+    "expires": "Expires:",
+    "not_muted":"is not muted at the moment"
+  },
+  "slowmode": {
+    "timespan": "❌ You can only set an slowmode between 0 seconds and 6 hours",
+    "set":"⏲ slowmode set to",
+    "seconds":"seconds"
   },
   "clear": {
     "amount_alert": "❌ You can only delete between 1 and 100 messages at a time",
     "error": "❌ An error ocurred while trying to delete the messages",
     "deleted": "Deleted",
     "messages": "messages"
+  },
+  "profile":{
+    "tag":"the tag cannot be longer than 16 characters"
+  },
+  "reactionrole":{
+    "existing_reaction":"❗ I cannot add two reactions in this message with identical emojis",
+    "reaction_added":"✔ Reaction role succesfully added",
+    "reaction_deleted":"🗑 Reaction role succesfully deleted",
+    "all_reactions_deleted":"🗑 All reactions succesfully deleted",
+    "reaction_not_found":"❌ I cannot find the message nor the emoji on it",
+    "message_not_found":"❌ I cannot find the message:",
+    "no_reactions":"❌ There are no reactions to remove from this message."
   }
 }
