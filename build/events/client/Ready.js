@@ -27,9 +27,7 @@ class Ready extends Event_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             console.log(`${(_a = this.client.user) === null || _a === void 0 ? void 0 : _a.tag} is now ready`);
-            const clientId = this.client.developmentMode
-                ? this.client.config.devDiscordClientId
-                : this.client.config.discordClientId;
+            const clientId = this.client.config.discordClientId;
             const rest = new discord_js_1.REST().setToken(this.client.config.token);
             if (!this.client.developmentMode) {
                 const globalCommands = yield rest.put(discord_js_1.Routes.applicationCommands(clientId), {

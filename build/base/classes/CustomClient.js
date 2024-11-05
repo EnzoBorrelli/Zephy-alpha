@@ -12,11 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = __importDefault(require("dotenv")); // Mover la importación de dotenv al principio
+dotenv_1.default.config(); // Cargar las variables de entorno
 const discord_js_1 = require("discord.js");
 const Handler_1 = __importDefault(require("./Handler"));
 const mongoose_1 = require("mongoose");
 const i18next_1 = __importDefault(require("i18next"));
 const i18next_fs_backend_1 = __importDefault(require("i18next-fs-backend"));
+const config_1 = require("../data/config");
 class CustomClient extends discord_js_1.Client {
     constructor() {
         super({
@@ -26,7 +29,7 @@ class CustomClient extends discord_js_1.Client {
                 discord_js_1.GatewayIntentBits.GuildMessageReactions,
             ],
         });
-        this.config = require(`${process.cwd()}/data/config.json`); //process.cwd look for the specific path
+        this.config = config_1.Config;
         this.handler = new Handler_1.default(this);
         this.commands = new discord_js_1.Collection();
         this.subCommands = new discord_js_1.Collection();
@@ -36,10 +39,15 @@ class CustomClient extends discord_js_1.Client {
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.developmentMode ? "development" : "production"} mode enabled`);
+            // Verificar que las variables de entorno estén definidas
+            if (!this.config.token || !this.config.mongoUrl) {
+                console.error("Missing environment variables. Please check your .env file.");
+                process.exit(1);
+            }
             yield this.initializeI18n();
             this.LoadHandlers();
-            this.login(this.developmentMode ? this.config.devToken : this.config.token).catch((err) => console.error(err));
-            (0, mongoose_1.connect)(this.developmentMode ? this.config.devMongoUrl : this.config.mongoUrl)
+            this.login(this.config.token).catch((err) => console.error(err));
+            (0, mongoose_1.connect)(this.config.mongoUrl)
                 .then(() => console.log("connected to db"))
                 .catch((err) => console.error(err));
         });
@@ -59,7 +67,7 @@ class CustomClient extends discord_js_1.Client {
                 },
                 debug: true,
             });
-            console.log("i18Next initialize with lang:", i18next_1.default.language);
+            console.log("i18Next initialized with lang:", i18next_1.default.language);
         });
     }
 }
