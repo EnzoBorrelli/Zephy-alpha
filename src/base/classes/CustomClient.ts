@@ -1,3 +1,6 @@
+import dotenv from "dotenv"; // Mover la importación de dotenv al principio
+dotenv.config(); // Cargar las variables de entorno
+
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import ICustomClient from "../interfaces/ICustomClient";
 import Iconfig from "../interfaces/IConfig";
@@ -7,6 +10,7 @@ import SubCommand from "./SubCommand";
 import { connect } from "mongoose";
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
+import { Config } from "../data/config";
 
 export default class CustomClient extends Client implements ICustomClient {
   handler: Handler;
@@ -24,7 +28,7 @@ export default class CustomClient extends Client implements ICustomClient {
         GatewayIntentBits.GuildMessageReactions,
       ],
     });
-    this.config = require(`${process.cwd()}/data/config.json`); //process.cwd look for the specific path
+    this.config = Config;
     this.handler = new Handler(this);
     this.commands = new Collection();
     this.subCommands = new Collection();
@@ -36,21 +40,27 @@ export default class CustomClient extends Client implements ICustomClient {
     console.log(
       `${this.developmentMode ? "development" : "production"} mode enabled`
     );
+
+    // Verificar que las variables de entorno estén definidas
+    if (!this.config.token || !this.config.mongoUrl) {
+      console.error("Missing environment variables. Please check your .env file.");
+      process.exit(1);
+    }
+
     await this.initializeI18n();
     this.LoadHandlers();
-    this.login(
-      this.developmentMode ? this.config.devToken : this.config.token
-    ).catch((err) => console.error(err));
-    connect(
-      this.developmentMode ? this.config.devMongoUrl : this.config.mongoUrl
-    )
+    this.login(this.config.token).catch((err) => console.error(err));
+    
+    connect(this.config.mongoUrl)
       .then(() => console.log("connected to db"))
       .catch((err) => console.error(err));
   }
+
   LoadHandlers(): void {
     this.handler.LoadEvents();
     this.handler.LoadCommands();
   }
+
   async initializeI18n(): Promise<void> {
     await i18next.use(Backend).init({
       initImmediate: false,
@@ -61,6 +71,6 @@ export default class CustomClient extends Client implements ICustomClient {
       },
       debug: true,
     });
-    console.log("i18Next initialize with lang:", i18next.language);
+    console.log("i18Next initialized with lang:", i18next.language);
   }
 }

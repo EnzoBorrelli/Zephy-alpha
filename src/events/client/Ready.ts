@@ -15,9 +15,7 @@ export default class Ready extends Event {
   async Execute() {
     console.log(`${this.client.user?.tag} is now ready`);
 
-    const clientId = this.client.developmentMode
-      ? this.client.config.devDiscordClientId
-      : this.client.config.discordClientId;
+    const clientId = this.client.config.discordClientId;
     const rest = new REST().setToken(this.client.config.token);
 
     if (!this.client.developmentMode) {

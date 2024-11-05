@@ -4,9 +4,6 @@ export default interface Iconfig {
   mongoUrl:string
 
 //for development
-  devToken:string
-  devDiscordClientId: string;
   devGuildId: string;
   devUserIds: string[]
-  devMongoUrl:string
 }
