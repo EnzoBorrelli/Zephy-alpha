@@ -8,7 +8,7 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import i18next from "i18next";
-import GuildConfig from "../../base/schemas/GuildConfig";
+import supabase from "../../lib/db";
 
 export default class TestLang extends Command {
   constructor(client: CustomClient) {
@@ -24,9 +24,25 @@ export default class TestLang extends Command {
     });
   }
   async Execute(interaction: ChatInputCommandInteraction) {
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+    const {data:guild,error:guildError} = await supabase
+    .from("guildconfig")
+    .select("*")
+    .eq("guildid", interaction.guildId)
+    .single();
 
-    i18next.changeLanguage(guild?.preferedLang.toString());
+    if (guildError || !guild) {
+      console.error("Error fetching guild config or no config found:", guildError);
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("❌ Error fetching language preference for the guild."),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    i18next.changeLanguage(guild.prefferedlang.toString());
 
     await interaction.reply({
       embeds: [

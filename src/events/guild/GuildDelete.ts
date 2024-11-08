@@ -1,7 +1,7 @@
 import { Events, Guild } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
-import GuildConfig from "../../base/schemas/GuildConfig";
+import supabase from "../../lib/db";
 
 export default class GuildDelete extends Event {
   constructor(client: CustomClient) {
@@ -11,11 +11,22 @@ export default class GuildDelete extends Event {
       once: false,
     });
   }
+
   async Execute(guild: Guild) {
     try {
-      await GuildConfig.deleteOne({ guildId: guild.id });
+      // Deleting the guild record from the database based on the guildId
+      const { data, error: deleteError } = await supabase
+        .from("guildconfig") // Your table name
+        .delete()
+        .eq("guildid", guild.id); // Matching the guildId
+
+      if (deleteError) {
+        console.error("Error deleting guild config:", deleteError);
+      } else {
+        console.log("Guild config deleted:", data);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error during guild delete:", error);
     }
   }
 }

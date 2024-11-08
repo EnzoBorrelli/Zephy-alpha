@@ -7,9 +7,8 @@ import {
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import SubCommand from "../../base/classes/SubCommand";
-import GuildConfig from "../../base/schemas/GuildConfig";
 import i18next from "i18next";
-import ReactionRole from "../../base/schemas/ReactionRole";
+import supabase from "../../lib/db";
 
 export default class ReactionRoleAdd extends SubCommand {
   constructor(client: CustomClient) {
@@ -26,20 +25,71 @@ export default class ReactionRoleAdd extends SubCommand {
       .replace(/[<@&>]/g, "");
     const channel = (interaction.options.getChannel("channel") ||
       interaction.channel) as TextChannel;
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
-    const reaction = await ReactionRole.findOne({
-      guildId: interaction.guildId,
-      messageId: messageId,
-      emoji: emoji,
-    });
 
-    i18next.changeLanguage(guild?.preferedLang.toString());
+    await interaction.deferReply({ ephemeral: true });
+
+    const { data: guild, error: guildError } = await supabase
+      .from("guildconfig")
+      .select("*")
+      .eq("guildid", interaction.guildId)
+      .single();
+
+    if (guildError || !guild) {
+      console.error(
+        "Error fetching guild config or no config found:",
+        guildError
+      );
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("❌ Error fetching guild."),
+        ],
+      });
+    }
+
+    i18next.changeLanguage(guild.prefferedlang.toString());
+
+    let { data: reaction, error: reactionError } = await supabase
+      .from("reactionrole")
+      .select("*")
+      .eq("guildid", guild.guildid)
+      .eq("messageid", messageId)
+      .eq("emoji", emoji)
+      .single();
 
     try {
       const message = await channel.messages.fetch(messageId);
 
-      if (reaction) {
-        return interaction.reply({
+      if (reactionError || !reaction) {
+        const { data: newReaction, error: createError } = await supabase
+          .from("reactionrole")
+          .insert({
+            guildid: guild.guildid,
+            messageid: messageId,
+            channelid: channel.id,
+            emoji: emoji,
+            roleid: role,
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Error creating logs entry:", createError);
+          return interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setColor("Red")
+                .setDescription(
+                  `${i18next.t("general.error")} : ${createError}`
+                ),
+            ],
+          });
+        }
+
+        reaction = newReaction;
+      } else {
+        return interaction.editReply({
           embeds: [
             new EmbedBuilder()
               .setColor("Orange")
@@ -49,19 +99,10 @@ export default class ReactionRoleAdd extends SubCommand {
                 )} \n **Emoji:** ${emoji}`
               ),
           ],
-          ephemeral: true,
-        });
-      } else {
-        await ReactionRole.create({
-          guildId: interaction.guildId,
-          messageId: messageId,
-          channelId:channel.id,
-          emoji: emoji,
-          roleId: role,
         });
       }
       await message.react(emoji);
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Green")
@@ -71,16 +112,14 @@ export default class ReactionRoleAdd extends SubCommand {
               )}**${messageId} \n <@&${role}> -> ${emoji}`
             ),
         ],
-        ephemeral: true,
       });
     } catch (error) {
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
             .setDescription(`${i18next.t("general.error")} : ${error}`),
         ],
-        ephemeral: true,
       });
     }
   }
@@ -91,16 +130,25 @@ export default class ReactionRoleAdd extends SubCommand {
     const guild = reaction.message.guild;
     if (!guild) return console.log("This guild does not exist");
 
-    const reactionRole = await ReactionRole.findOne({
-      guildId: guild.id,
-      messageId: reaction.message.id,
-      emoji: reaction.emoji.name,
-    });
+    const { data: reactionRole, error: reactionError } = await supabase
+      .from("reactionrole")
+      .select("*")
+      .eq("guildid", guild.id)
+      .eq("messageid", reaction.message.id)
+      .eq("emoji", reaction.emoji.name)
+      .single();
+
+    if (reactionError || !reaction) {
+      console.error(
+        "Error fetching reaction config or no config found:",
+        reactionError
+      );
+    }
 
     if (!reactionRole) return console.log("This reaction does not exist");
 
     try {
-      const role = await guild.roles.fetch(reactionRole.roleId); // Fetch the role
+      const role = await guild.roles.fetch(reactionRole.roleid); // Fetch the role
       const member = await guild.members.fetch(user.id);
 
       if (role) {

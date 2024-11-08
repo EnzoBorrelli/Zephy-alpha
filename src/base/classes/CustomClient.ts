@@ -7,7 +7,6 @@ import Iconfig from "../interfaces/IConfig";
 import Handler from "./Handler";
 import Command from "./Command";
 import SubCommand from "./SubCommand";
-import { connect } from "mongoose";
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import { Config } from "../data/config";
@@ -42,7 +41,7 @@ export default class CustomClient extends Client implements ICustomClient {
     );
 
     // Verificar que las variables de entorno estén definidas
-    if (!this.config.token || !this.config.mongoUrl) {
+    if (!this.config.token) {
       console.error("Missing environment variables. Please check your .env file.");
       process.exit(1);
     }
@@ -50,10 +49,6 @@ export default class CustomClient extends Client implements ICustomClient {
     await this.initializeI18n();
     this.LoadHandlers();
     this.login(this.config.token).catch((err) => console.error(err));
-    
-    connect(this.config.mongoUrl)
-      .then(() => console.log("connected to db"))
-      .catch((err) => console.error(err));
   }
 
   LoadHandlers(): void {

@@ -2,7 +2,7 @@ import { Collection, Events, REST, Routes, TextChannel } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command";
-import ReactionRole from "../../base/schemas/ReactionRole";
+import supabase from "../../lib/db";
 
 export default class Ready extends Event {
   constructor(client: CustomClient) {
@@ -60,31 +60,34 @@ export default class Ready extends Event {
   private async loadReactionRoles() {
     console.log("im being summoned");
     try {
-      const reactionRoles = await ReactionRole.find();
+      const { data: reactionRoles, error } = await supabase
+        .from("reactionrole")
+        .select("*");
+      if (error) console.error(error);
 
-      for (const reactionRole of reactionRoles) {
-        const guild = this.client.guilds.cache.get(reactionRole.guildId);
+      for (const reactionRole of reactionRoles!) {
+        const guild = this.client.guilds.cache.get(reactionRole.guildid);
         if (!guild) {
           console.log("guild not found");
           continue;
         }
         const channel = guild.channels.cache.get(
-          reactionRole.channelId
+          reactionRole.channelid
         ) as TextChannel;
         if (!channel) {
           console.log("channel not found");
           continue;
         }
         try {
-          const message = await channel.messages.fetch(reactionRole.messageId);
+          const message = await channel.messages.fetch(reactionRole.messageid);
           if (message) {
             console.log(
-              `Loaded reaction role for message ${reactionRole.messageId} in guild ${guild.id}`
+              `Loaded reaction role for message ${reactionRole.messageid} in guild ${guild.id}`
             );
           }
         } catch (error) {
           console.error(
-            `Error loading message ${reactionRole.messageId}:`,
+            `Error loading message ${reactionRole.messageid}:`,
             error
           );
         }

@@ -24,18 +24,6 @@ export default class Logs extends Command {
           type: ApplicationCommandOptionType.Subcommand,
           options: [
             {
-              name: "log-type",
-              description: "Type of log to toggle",
-              type: ApplicationCommandOptionType.String,
-              required: true,
-              choices: [
-                {
-                  name: "Mod Logs",
-                  value: "moderation",
-                },
-              ],
-            },
-            {
               name: "toggle",
               description: "toggle the log",
               type: ApplicationCommandOptionType.Boolean,
@@ -48,18 +36,6 @@ export default class Logs extends Command {
           description: "set the logs channel for the server",
           type: ApplicationCommandOptionType.Subcommand,
           options: [
-            {
-              name: "log-type",
-              description: "Type of log to set",
-              type: ApplicationCommandOptionType.String,
-              required: true,
-              choices: [
-                {
-                  name: "Mod Logs",
-                  value: "moderation",
-                },
-              ],
-            },
             {
               name: "channel",
               description: "channel to set the logs to",

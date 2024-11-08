@@ -6,10 +6,10 @@ import {
   TextChannel,
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
-import GuildConfig from "../../base/schemas/GuildConfig";
 import Command from "../../base/classes/Command";
 import Category from "../../base/enums/Category";
 import i18next from "i18next";
+import supabase from "../../lib/db";
 
 export default class Unban extends Command {
   constructor(client: CustomClient) {
@@ -52,9 +52,43 @@ export default class Unban extends Command {
     const errorEmbed = new EmbedBuilder().setColor("Red");
     const Embed = new EmbedBuilder().setColor("Green");
 
-    const guild = await GuildConfig.findOne({ guildId: interaction.guildId });
+    const {data:guild,error:guildError} = await supabase
+    .from("guildconfig")
+    .select("*")
+    .eq("guildid", interaction.guildId)
+    .single();
 
-    i18next.changeLanguage(guild?.preferedLang.toString());
+    if (guildError || !guild) {
+      console.error("Error fetching guild config or no config found:", guildError);
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("❌ Error fetching language preference for the guild."),
+        ],
+        ephemeral: true,
+      });
+    }
+
+    i18next.changeLanguage(guild.prefferedlang.toString());
+
+    const {data:logs,error:logsError} = await supabase
+    .from("logs")
+    .select("*")
+    .eq("guildconfigid", guild.id)
+    .single();
+
+    if (logsError || !logs) {
+      console.error("Error fetching guild config or no config found:", logsError);
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("❌ Error fetching language preference for the guild."),
+        ],
+        ephemeral: true,
+      });
+    }
 
     if (reason.length > 512) {
       return interaction.reply({
@@ -103,12 +137,12 @@ export default class Unban extends Command {
 
     if (
       guild &&
-      guild.logs?.moderation?.enabled &&
-      guild.logs?.moderation?.channelId
+      logs.enabled &&
+      logs.channelid
     ) {
       (
         (await interaction.guild?.channels.fetch(
-          guild.logs.moderation.channelId
+          logs.channelid
         )) as TextChannel
       )?.send({
         embeds: [
