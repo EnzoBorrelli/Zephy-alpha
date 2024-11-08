@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const SubCommand_1 = __importDefault(require("../../base/classes/SubCommand"));
-const GuildConfig_1 = __importDefault(require("../../base/schemas/GuildConfig"));
+const db_1 = __importDefault(require("../../lib/db")); // Ensure you have configured the Supabase client
 class LogsSet extends SubCommand_1.default {
     constructor(client) {
         super(client, {
@@ -23,36 +23,87 @@ class LogsSet extends SubCommand_1.default {
     }
     Execute(interaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            const logType = interaction.options.getString("log-type");
             const channel = interaction.options.getChannel("channel");
             yield interaction.deferReply({ ephemeral: true });
             try {
-                let guild = yield GuildConfig_1.default.findOne({ guildId: interaction.guildId });
-                if (!guild) {
-                    guild = yield GuildConfig_1.default.create({ guildId: interaction.guildId });
+                // Check if guild config exists
+                let { data: guild, error: fetchError } = yield db_1.default
+                    .from("guildconfig")
+                    .select("*")
+                    .eq("guildid", interaction.guildId)
+                    .single();
+                if (fetchError) {
+                    console.error("Error fetching guild config:", fetchError);
+                    return interaction.editReply({
+                        embeds: [this.createErrorEmbed("❌ Error fetching guild config.")],
+                    });
                 }
-                //@ts-ignore
-                guild.logs[`${logType}`].channelId = channel.id;
-                yield guild.save();
+                // If guild config doesn't exist, create it
+                if (!guild) {
+                    const { data: newGuild, error: insertError } = yield db_1.default
+                        .from("guildconfig")
+                        .insert({ guildid: interaction.guildId })
+                        .select()
+                        .single();
+                    if (insertError) {
+                        console.error("Error creating guild config:", insertError);
+                        return interaction.editReply({
+                            embeds: [this.createErrorEmbed("❌ Error creating guild config.")],
+                        });
+                    }
+                    guild = newGuild;
+                }
+                // Check if logs entry exists for this guild config
+                let { data: logs, error: logError } = yield db_1.default
+                    .from("logs")
+                    .select("*")
+                    .eq("guildconfigid", guild.id)
+                    .single();
+                // If logs entry doesn't exist, create it
+                if (logError || !logs) {
+                    const { data: newLogs, error: insertError } = yield db_1.default
+                        .from("logs")
+                        .insert({ guildconfigid: guild.id, enabled: true })
+                        .select()
+                        .single();
+                    if (insertError) {
+                        console.error("Error creating logs entry:", insertError);
+                        return interaction.editReply({
+                            embeds: [this.createErrorEmbed("❌ Error creating logs entry.")],
+                        });
+                    }
+                    logs = newLogs;
+                }
+                // Update the channel ID for moderation logs
+                const { error: updateError } = yield db_1.default
+                    .from("logs")
+                    .update({ channelid: channel.id })
+                    .eq("id", logs.id);
+                if (updateError) {
+                    console.error("Error updating channel ID:", updateError);
+                    return interaction.editReply({
+                        embeds: [this.createErrorEmbed("❌ Error updating channel ID.")],
+                    });
+                }
                 return interaction.editReply({
                     embeds: [
                         new discord_js_1.EmbedBuilder()
                             .setColor("Green")
-                            .setDescription(`✔ Updated \`${logType}\` logs to send to ${channel}`),
+                            .setDescription(`✔ Moderation logs channel set to ${channel}`),
                     ],
                 });
             }
             catch (error) {
-                console.error(error);
+                console.error("Unexpected error:", error);
                 return interaction.editReply({
-                    embeds: [
-                        new discord_js_1.EmbedBuilder()
-                            .setColor("Red")
-                            .setDescription("❌ there was an error, try again"),
-                    ],
+                    embeds: [this.createErrorEmbed("❌ An unexpected error occurred.")],
                 });
             }
         });
+    }
+    // Helper function for error embed creation
+    createErrorEmbed(description) {
+        return new discord_js_1.EmbedBuilder().setColor("Red").setDescription(description);
     }
 }
 exports.default = LogsSet;

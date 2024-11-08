@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const Event_1 = __importDefault(require("../../base/classes/Event"));
-const ReactionRole_1 = __importDefault(require("../../base/schemas/ReactionRole"));
+const db_1 = __importDefault(require("../../lib/db"));
 class Ready extends Event_1.default {
     constructor(client) {
         super(client, {
@@ -59,26 +59,30 @@ class Ready extends Event_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("im being summoned");
             try {
-                const reactionRoles = yield ReactionRole_1.default.find();
+                const { data: reactionRoles, error } = yield db_1.default
+                    .from("reactionrole")
+                    .select("*");
+                if (error)
+                    console.error(error);
                 for (const reactionRole of reactionRoles) {
-                    const guild = this.client.guilds.cache.get(reactionRole.guildId);
+                    const guild = this.client.guilds.cache.get(reactionRole.guildid);
                     if (!guild) {
                         console.log("guild not found");
                         continue;
                     }
-                    const channel = guild.channels.cache.get(reactionRole.channelId);
+                    const channel = guild.channels.cache.get(reactionRole.channelid);
                     if (!channel) {
                         console.log("channel not found");
                         continue;
                     }
                     try {
-                        const message = yield channel.messages.fetch(reactionRole.messageId);
+                        const message = yield channel.messages.fetch(reactionRole.messageid);
                         if (message) {
-                            console.log(`Loaded reaction role for message ${reactionRole.messageId} in guild ${guild.id}`);
+                            console.log(`Loaded reaction role for message ${reactionRole.messageid} in guild ${guild.id}`);
                         }
                     }
                     catch (error) {
-                        console.error(`Error loading message ${reactionRole.messageId}:`, error);
+                        console.error(`Error loading message ${reactionRole.messageid}:`, error);
                     }
                 }
             }

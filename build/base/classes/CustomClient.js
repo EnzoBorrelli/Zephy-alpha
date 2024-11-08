@@ -16,7 +16,6 @@ const dotenv_1 = __importDefault(require("dotenv")); // Mover la importación de
 dotenv_1.default.config(); // Cargar las variables de entorno
 const discord_js_1 = require("discord.js");
 const Handler_1 = __importDefault(require("./Handler"));
-const mongoose_1 = require("mongoose");
 const i18next_1 = __importDefault(require("i18next"));
 const i18next_fs_backend_1 = __importDefault(require("i18next-fs-backend"));
 const config_1 = require("../data/config");
@@ -40,16 +39,13 @@ class CustomClient extends discord_js_1.Client {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(`${this.developmentMode ? "development" : "production"} mode enabled`);
             // Verificar que las variables de entorno estén definidas
-            if (!this.config.token || !this.config.mongoUrl) {
+            if (!this.config.token) {
                 console.error("Missing environment variables. Please check your .env file.");
                 process.exit(1);
             }
             yield this.initializeI18n();
             this.LoadHandlers();
             this.login(this.config.token).catch((err) => console.error(err));
-            (0, mongoose_1.connect)(this.config.mongoUrl)
-                .then(() => console.log("connected to db"))
-                .catch((err) => console.error(err));
         });
     }
     LoadHandlers() {

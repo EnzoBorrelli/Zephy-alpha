@@ -22,18 +22,6 @@ class Logs extends Command_1.default {
                     type: discord_js_1.ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
-                            name: "log-type",
-                            description: "Type of log to toggle",
-                            type: discord_js_1.ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Mod Logs",
-                                    value: "moderation",
-                                },
-                            ],
-                        },
-                        {
                             name: "toggle",
                             description: "toggle the log",
                             type: discord_js_1.ApplicationCommandOptionType.Boolean,
@@ -46,18 +34,6 @@ class Logs extends Command_1.default {
                     description: "set the logs channel for the server",
                     type: discord_js_1.ApplicationCommandOptionType.Subcommand,
                     options: [
-                        {
-                            name: "log-type",
-                            description: "Type of log to set",
-                            type: discord_js_1.ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Mod Logs",
-                                    value: "moderation",
-                                },
-                            ],
-                        },
                         {
                             name: "channel",
                             description: "channel to set the logs to",

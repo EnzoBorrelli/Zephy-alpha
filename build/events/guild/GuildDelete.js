@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const Event_1 = __importDefault(require("../../base/classes/Event"));
-const GuildConfig_1 = __importDefault(require("../../base/schemas/GuildConfig"));
+const db_1 = __importDefault(require("../../lib/db"));
 class GuildDelete extends Event_1.default {
     constructor(client) {
         super(client, {
@@ -26,10 +26,20 @@ class GuildDelete extends Event_1.default {
     Execute(guild) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield GuildConfig_1.default.deleteOne({ guildId: guild.id });
+                // Deleting the guild record from the database based on the guildId
+                const { data, error: deleteError } = yield db_1.default
+                    .from("guildconfig") // Your table name
+                    .delete()
+                    .eq("guildid", guild.id); // Matching the guildId
+                if (deleteError) {
+                    console.error("Error deleting guild config:", deleteError);
+                }
+                else {
+                    console.log("Guild config deleted:", data);
+                }
             }
             catch (error) {
-                console.error(error);
+                console.error("Error during guild delete:", error);
             }
         });
     }
